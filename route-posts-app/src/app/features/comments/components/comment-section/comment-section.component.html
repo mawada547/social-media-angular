@@ -1,0 +1,192 @@
+<section class="comments-container card" aria-label="Comments section">
+  <div class="comments-header">
+    <div>
+      <h2 class="comments-title">Discussion &amp; Comments</h2>
+      <p class="comments-subtitle">Share feedback or join the conversation on this post.</p>
+    </div>
+
+    <div class="comments-header-actions">
+      <span class="badge badge-blue">{{ totalCommentsCount() }} Comments</span>
+      <button
+        type="button"
+        class="btn btn-outline btn-sm"
+        (click)="loadComments()"
+        [disabled]="isLoading()"
+      >
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  @if (actionFeedback(); as feedback) {
+    <div class="alert alert-success comments-feedback" role="status">
+      {{ feedback }}
+    </div>
+  }
+
+  <form
+    class="comment-composer"
+    [formGroup]="composerForm"
+    (ngSubmit)="submitComment()"
+    novalidate
+  >
+    <div class="composer-main">
+      <div class="avatar avatar-sm">
+        @if (currentUser()?.photo) {
+          <img
+            [src]="currentUser()?.photo"
+            [alt]="currentUser()?.name || 'Your avatar'"
+            class="avatar-img"
+          />
+        } @else {
+          {{ userInitials() }}
+        }
+      </div>
+
+      <div class="composer-fields">
+        <textarea
+          rows="2"
+          class="form-control comment-textarea"
+          formControlName="content"
+          (input)="onContentInput()"
+          [class.is-invalid]="createValidationError() !== null"
+          placeholder="Write a comment..."
+          aria-label="Write a comment"
+        ></textarea>
+
+        @if (createImageSelector.previewUrl(); as previewUrl) {
+          <div class="composer-image-preview">
+            <img [src]="previewUrl" alt="Selected comment image preview" class="preview-image" />
+            <button
+              type="button"
+              class="preview-remove-btn"
+              (click)="removeSelectedImage()"
+              [disabled]="isSubmitting()"
+              aria-label="Remove selected comment image"
+            >
+              &times; Remove Image
+            </button>
+          </div>
+        }
+
+        @if (createImageSelector.errorMessage(); as imgError) {
+          <p class="field-error">{{ imgError }}</p>
+        } @else if (createValidationError(); as valError) {
+          <p class="field-error">{{ valError }}</p>
+        }
+
+        @if (createErrorMessages().length > 0) {
+          <div class="alert alert-error" role="alert">
+            @for (msg of createErrorMessages(); track msg) {
+              <div>{{ msg }}</div>
+            }
+          </div>
+        }
+
+        <div class="composer-footer">
+          <div class="composer-tools">
+            <label class="file-upload-btn" [class.disabled]="isSubmitting()">
+              <span>{{ createImageSelector.selectedFile() ? 'Change Image' : 'Attach Image' }}</span>
+              <input
+                #createImageInput
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                class="sr-only-input"
+                (change)="onCreateFileChange($event)"
+                [disabled]="isSubmitting()"
+              />
+            </label>
+            @if (createImageSelector.selectedFile(); as file) {
+              <span class="file-name-pill">{{ file.name }}</span>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Posting...</span>
+            } @else {
+              <span>Post Comment</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  @if (isLoading()) {
+    <div class="comments-state" role="status" aria-live="polite">
+      <div class="loading-row">
+        <span class="spinner spinner-blue" aria-hidden="true"></span>
+        <span>Loading comments...</span>
+      </div>
+    </div>
+  } @else if (errorMessages().length > 0) {
+    <div class="comments-error-box alert alert-error" role="alert">
+      <strong>Unable to load comments</strong>
+      @for (msg of errorMessages(); track msg) {
+        <div>{{ msg }}</div>
+      }
+      <div class="error-retry-row">
+        <button type="button" class="btn btn-outline btn-sm" (click)="loadComments()">
+          Try Again
+        </button>
+      </div>
+    </div>
+  } @else if (comments().length === 0) {
+    <div class="comments-state empty-state">
+      <p class="empty-title">No comments yet</p>
+      <p class="empty-desc">Start the discussion by posting the first comment above.</p>
+    </div>
+  } @else {
+    <div class="comment-list">
+      @for (comment of comments(); track trackComment(comment)) {
+        <app-comment-item
+          [comment]="comment"
+          [postId]="postId()"
+          [isDeleting]="deletingCommentId() === trackComment(comment)"
+          (commentUpdated)="onCommentUpdated($event)"
+          (deleteRequested)="openDeleteDialog($event)"
+        />
+      }
+    </div>
+
+    @if (pagination(); as meta) {
+      @if (meta.numberOfPages > 1) {
+        <div class="comments-pagination">
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            (click)="goToPage(meta.currentPage - 1)"
+            [disabled]="meta.currentPage <= 1 || isLoading()"
+          >
+            &larr; Previous
+          </button>
+          <span class="pagination-info">
+            Page {{ meta.currentPage }} of {{ meta.numberOfPages }} ({{ meta.total }} comments)
+          </span>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            (click)="goToPage(meta.currentPage + 1)"
+            [disabled]="meta.currentPage >= meta.numberOfPages || isLoading()"
+          >
+            Next &rarr;
+          </button>
+        </div>
+      }
+    }
+  }
+</section>
+
+<app-confirm-dialog
+  [open]="commentPendingDelete() !== null"
+  title="Delete Comment?"
+  message="Are you sure you want to permanently delete this comment? This action cannot be undone."
+  confirmLabel="Delete Comment"
+  cancelLabel="Cancel"
+  [isConfirming]="isDeleting()"
+  [errorMessage]="deleteErrorMessage()"
+  (confirmed)="confirmDeleteComment()"
+  (cancelled)="closeDeleteDialog()"
+/>

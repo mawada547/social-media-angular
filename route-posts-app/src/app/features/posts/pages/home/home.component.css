@@ -1,0 +1,250 @@
+.feed-layout {
+  display: grid;
+  grid-template-columns: 16.5rem minmax(0, 1fr) 17.5rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.profile-mini-card {
+  overflow: hidden;
+}
+
+.mini-banner {
+  height: 4.25rem;
+  background: linear-gradient(135deg, var(--primary-600), #3b82f6);
+}
+
+.mini-body {
+  padding: 0 1.25rem 1.25rem;
+  text-align: center;
+}
+
+.mini-avatar {
+  margin: -1.75rem auto 0.65rem;
+  border: 3px solid #ffffff;
+}
+
+.mini-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 0.2rem;
+  color: var(--text-primary);
+}
+
+.mini-role {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+}
+
+.mini-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  text-align: left;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.85rem;
+}
+
+.mini-link-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mini-link-item:hover {
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+
+.feed-controls {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.feed-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.feed-heading {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.feed-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.feed-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tab-pill {
+  padding: 0.38rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-muted);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-pill:hover {
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+}
+
+.tab-pill.active {
+  background: var(--primary-600);
+  border-color: var(--primary-600);
+  color: #ffffff;
+}
+
+.filter-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.feed-alert {
+  margin-bottom: 1rem;
+}
+
+.state-card {
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.state-card h2 {
+  font-size: 1.125rem;
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  color: var(--text-primary);
+}
+
+.state-message {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 auto 1.125rem;
+  max-width: 28rem;
+  line-height: 1.55;
+}
+
+.loading-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.spinner-blue {
+  border-color: var(--primary-100);
+  border-top-color: var(--primary-600);
+}
+
+.post-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.pagination-bar {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pagination-info {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.side-widget {
+  padding: 1.25rem;
+}
+
+.widget-title {
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  color: var(--text-primary);
+}
+
+.widget-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summary-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-color);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1080px) {
+  .feed-layout {
+    grid-template-columns: 15.5rem minmax(0, 1fr);
+  }
+
+  .feed-sidebar-right {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .feed-layout {
+    grid-template-columns: 1fr;
+  }
+}

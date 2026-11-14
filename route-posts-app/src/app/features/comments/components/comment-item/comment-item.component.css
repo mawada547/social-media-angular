@@ -1,0 +1,145 @@
+.comment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.comment-item.is-deleting {
+  opacity: 0.65;
+}
+
+.comment-bubble {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.comment-author {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.comment-handle,
+.comment-time,
+.meta-dot {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.comment-text {
+  font-size: 0.885rem;
+  color: var(--text-primary);
+  line-height: 1.55;
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.comment-media {
+  margin-top: 0.65rem;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  max-width: 24rem;
+}
+
+.comment-image {
+  display: block;
+  width: 100%;
+  max-height: 18rem;
+  object-fit: cover;
+}
+
+.comment-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.4rem;
+}
+
+.comment-edit-textarea {
+  resize: vertical;
+  min-height: 4.25rem;
+  background: #ffffff;
+}
+
+.comment-image-preview {
+  position: relative;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  max-width: 24rem;
+}
+
+.existing-image-note {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  background: #ffffff;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.edit-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.file-name-text {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comment-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .comment-bubble {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .comment-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+

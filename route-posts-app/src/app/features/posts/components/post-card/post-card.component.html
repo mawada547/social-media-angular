@@ -1,0 +1,195 @@
+<article class="card post-card">
+  <header class="post-header">
+    <div class="post-author">
+      <div class="avatar">
+        @if (author()?.photo) {
+          <img
+            [src]="author()?.photo"
+            [alt]="author()?.name || 'Author avatar'"
+            class="avatar-img"
+          />
+        } @else {
+          {{ authorInitials() }}
+        }
+      </div>
+
+      <div>
+        <div class="author-name-row">
+          <h3 class="author-name">{{ author()?.name || 'Community Member' }}</h3>
+          @if (post().privacy) {
+            <span class="badge badge-neutral">{{ post().privacy }}</span>
+          }
+        </div>
+        <div class="post-meta-row">
+          @if (author()?.username) {
+            <span class="author-handle">&#64;{{ author()?.username }}</span>
+            <span aria-hidden="true">&bull;</span>
+          }
+          @if (post().createdAt) {
+            <time [attr.datetime]="post().createdAt" class="post-time">
+              {{ post().createdAt | date: 'MMM d, y, h:mm a' }}
+            </time>
+          }
+        </div>
+      </div>
+    </div>
+
+    @if (isOwner()) {
+      <div class="post-crud-actions">
+        @if (!isEditing()) {
+          <button
+            type="button"
+            class="action-chip"
+            (click)="startEditing()"
+            [disabled]="isDeleting()"
+          >
+            Edit
+          </button>
+        }
+        <button
+          type="button"
+          class="action-chip action-chip-danger"
+          (click)="requestDelete()"
+          [disabled]="isEditing() || isDeleting()"
+        >
+          Delete
+        </button>
+      </div>
+    }
+  </header>
+
+  @if (isEditing()) {
+    <form class="edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()" novalidate>
+      <div class="form-group">
+        <label [for]="'edit-body-' + postId()" class="form-label">Edit Post Content</label>
+        <textarea
+          [id]="'edit-body-' + postId()"
+          rows="4"
+          class="form-control edit-textarea"
+          formControlName="body"
+          (input)="onEditBodyInput()"
+          [class.is-invalid]="editValidationError() !== null"
+          placeholder="Update your post text..."
+        ></textarea>
+      </div>
+
+      @if (editImageSelector.previewUrl(); as replacementUrl) {
+        <div class="edit-image-preview">
+          <img [src]="replacementUrl" alt="Replacement image preview" class="post-image" />
+          <button
+            type="button"
+            class="preview-remove-btn"
+            (click)="clearReplacementImage()"
+            [disabled]="isSavingEdit()"
+          >
+            &times; Remove New Image
+          </button>
+        </div>
+      } @else if (post().image) {
+        <div class="existing-image-note">
+          <span>Current image will be kept unless you choose a replacement below.</span>
+        </div>
+      }
+
+      <div class="edit-file-row">
+        <label class="file-upload-btn" [class.disabled]="isSavingEdit()">
+          <span>{{ editImageSelector.selectedFile() ? 'Change Replacement Image' : 'Replace Image (Optional)' }}</span>
+          <input
+            #editImageInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            class="sr-only-input"
+            (change)="onEditFileChange($event)"
+            [disabled]="isSavingEdit()"
+          />
+        </label>
+        @if (editImageSelector.selectedFile(); as file) {
+          <span class="file-name-text">{{ file.name }}</span>
+        }
+      </div>
+
+      @if (editImageSelector.errorMessage(); as imgErr) {
+        <p class="field-error">{{ imgErr }}</p>
+      } @else if (editValidationError(); as valErr) {
+        <p class="field-error">{{ valErr }}</p>
+      }
+
+      @if (editErrorMessages().length > 0) {
+        <div class="alert alert-error" role="alert">
+          @for (msg of editErrorMessages(); track msg) {
+            <div>{{ msg }}</div>
+          }
+        </div>
+      }
+
+      <div class="edit-actions">
+        <button
+          type="button"
+          class="btn btn-outline btn-sm"
+          (click)="cancelEditing()"
+          [disabled]="isSavingEdit()"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSavingEdit()">
+          @if (isSavingEdit()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Saving...</span>
+          } @else {
+            <span>Save Changes</span>
+          }
+        </button>
+      </div>
+    </form>
+  } @else {
+    <div class="post-content">
+      @if (post().body) {
+        <p class="post-body">{{ post().body }}</p>
+      }
+
+      @if (post().image) {
+        <div class="post-media">
+          <img [src]="post().image" alt="Post image attachment" class="post-image" loading="lazy" />
+        </div>
+      }
+
+      @if (post().isShare && post().sharedPost; as shared) {
+        <div class="shared-post-box">
+          <div class="shared-meta">
+            <strong>{{ sharedAuthor()?.name || 'Shared Post' }}</strong>
+            @if (shared.createdAt) {
+              <span>&bull; {{ shared.createdAt | date: 'MMM d, y' }}</span>
+            }
+          </div>
+          @if (shared.body) {
+            <p class="shared-body">{{ shared.body }}</p>
+          }
+          @if (shared.image) {
+            <img [src]="shared.image" alt="Shared post image" class="post-image shared-image" loading="lazy" />
+          }
+        </div>
+      }
+    </div>
+
+    <footer class="post-footer">
+      <div class="post-stats">
+        @if (post().likesCount !== undefined) {
+          <span class="post-stat">{{ post().likesCount }} Likes</span>
+        }
+        @if (post().commentsCount !== undefined) {
+          <span class="post-stat">{{ post().commentsCount }} Comments</span>
+        }
+        @if (post().sharesCount !== undefined) {
+          <span class="post-stat">{{ post().sharesCount }} Shares</span>
+        }
+      </div>
+
+      @if (showDetailsLink() && postId()) {
+        <a [routerLink]="['/posts', postId()]" class="btn btn-outline btn-sm">
+          View Post &amp; Comments &rarr;
+        </a>
+      }
+    </footer>
+  }
+</article>
+

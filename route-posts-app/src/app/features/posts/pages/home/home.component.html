@@ -1,0 +1,230 @@
+<div class="feed-layout">
+  <!-- Left Sidebar: Authenticated User Summary & Quick Navigation -->
+  <aside class="feed-sidebar-left" aria-label="Quick Navigation">
+    <div class="card profile-mini-card">
+      <div class="mini-banner"></div>
+      <div class="mini-body">
+        <div class="avatar avatar-lg mini-avatar">
+          @if (currentUser()?.photo) {
+            <img
+              [src]="currentUser()?.photo"
+              [alt]="currentUser()?.name || 'User avatar'"
+              class="avatar-img"
+            />
+          } @else {
+            {{ userInitials() }}
+          }
+        </div>
+        <h2 class="mini-name">{{ currentUser()?.name || 'SocialHub Member' }}</h2>
+        @if (currentUser()?.username) {
+          <p class="mini-role">&#64;{{ currentUser()?.username }}</p>
+        } @else {
+          <p class="mini-role">Authenticated Member</p>
+        }
+        <div class="mini-links">
+          <a routerLink="/profile" class="mini-link-item">
+            <span>My Profile</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+          <a routerLink="/change-password" class="mini-link-item">
+            <span>Password Settings</span>
+            <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Center Column: Create Post Composer + Live Feed -->
+  <section class="feed-main" aria-label="Community Posts Feed">
+    <app-post-composer (postCreated)="onPostCreated($event)" />
+
+    <!-- Feed Header & Filters -->
+    <div class="feed-controls card">
+      <div class="feed-section-header">
+        <h1 class="feed-heading">Community Feed</h1>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          (click)="loadFeed()"
+          [disabled]="isLoading()"
+        >
+          Refresh
+        </button>
+      </div>
+
+      <div class="feed-filter-row">
+        <div class="feed-tabs" role="tablist" aria-label="Feed Scope">
+          <button
+            type="button"
+            role="tab"
+            class="tab-pill"
+            [class.active]="activeTab() === 'following'"
+            [attr.aria-selected]="activeTab() === 'following'"
+            (click)="selectTab('following')"
+          >
+            Following Feed
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="tab-pill"
+            [class.active]="activeTab() === 'all'"
+            [attr.aria-selected]="activeTab() === 'all'"
+            (click)="selectTab('all')"
+          >
+            All Posts
+          </button>
+          <button
+            type="button"
+            role="tab"
+            class="tab-pill"
+            [class.active]="activeTab() === 'me'"
+            [attr.aria-selected]="activeTab() === 'me'"
+            (click)="selectTab('me')"
+          >
+            My Posts
+          </button>
+        </div>
+
+        <label class="filter-checkbox">
+          <input
+            type="checkbox"
+            [checked]="imagesOnly()"
+            (change)="toggleImagesOnly()"
+          />
+          <span>With images only</span>
+        </label>
+      </div>
+    </div>
+
+    @if (actionFeedback(); as feedback) {
+      <div class="alert alert-success feed-alert" role="status">
+        {{ feedback }}
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="card state-card" role="status" aria-live="polite">
+        <div class="loading-row">
+          <span class="spinner spinner-blue" aria-hidden="true"></span>
+          <span>Loading posts from Route Posts API...</span>
+        </div>
+      </div>
+    } @else if (feedErrorMessages().length > 0) {
+      <!-- Error State -->
+      <div class="card state-card error-state" role="alert">
+        <h2>Unable to load posts</h2>
+        @for (msg of feedErrorMessages(); track msg) {
+          <p class="state-message">{{ msg }}</p>
+        }
+        <button type="button" class="btn btn-primary btn-sm" (click)="loadFeed()">
+          Try Again
+        </button>
+      </div>
+    } @else if (posts().length === 0) {
+      <!-- Empty State -->
+      <div class="card state-card empty-state">
+        <h2>No posts to display</h2>
+        @if (activeTab() === 'following') {
+          <p class="state-message">
+            Your following feed is currently empty. Publish your first post above or switch to All Posts to explore the community.
+          </p>
+          <button type="button" class="btn btn-outline btn-sm" (click)="selectTab('all')">
+            Browse All Posts
+          </button>
+        } @else {
+          <p class="state-message">
+            No posts matched this filter yet. Publish a new post above or reset your filters.
+          </p>
+        }
+      </div>
+    } @else {
+      <!-- Posts List -->
+      <div class="post-stack">
+        @for (post of posts(); track trackPost(post)) {
+          <app-post-card
+            [post]="post"
+            [isDeleting]="deletingPostId() === trackPost(post)"
+            (postUpdated)="onPostUpdated()"
+            (deleteRequested)="openDeleteDialog($event)"
+          />
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (pagination(); as meta) {
+        @if (meta.numberOfPages > 1) {
+          <nav class="card pagination-bar" aria-label="Posts Pagination">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              [disabled]="meta.currentPage <= 1 || isLoading()"
+              (click)="goToPage(meta.currentPage - 1)"
+            >
+              &larr; Previous
+            </button>
+            <span class="pagination-info">
+              Page {{ meta.currentPage }} of {{ meta.numberOfPages }} ({{ meta.total }} posts)
+            </span>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              [disabled]="meta.currentPage >= meta.numberOfPages || isLoading()"
+              (click)="goToPage(meta.currentPage + 1)"
+            >
+              Next &rarr;
+            </button>
+          </nav>
+        }
+      }
+    }
+  </section>
+
+  <!-- Right Sidebar: Feed Summary -->
+  <aside class="feed-sidebar-right" aria-label="Feed Information">
+    <div class="card side-widget">
+      <h2 class="widget-title">Feed Overview</h2>
+      <p class="widget-desc">
+        Browse live community posts, publish updates with optional images, and manage your own posts.
+      </p>
+      <ul class="summary-list">
+        <li>
+          <span>Active View</span>
+          <strong>
+            @if (activeTab() === 'following') {
+              Following Feed
+            } @else if (activeTab() === 'all') {
+              All Posts
+            } @else {
+              My Posts
+            }
+          </strong>
+        </li>
+        <li>
+          <span>Visible Posts</span>
+          <strong>{{ posts().length }}</strong>
+        </li>
+        @if (pagination(); as meta) {
+          <li>
+            <span>Total Matching</span>
+            <strong>{{ meta.total }}</strong>
+          </li>
+        }
+      </ul>
+    </div>
+  </aside>
+</div>
+
+<app-confirm-dialog
+  [open]="postPendingDelete() !== null"
+  title="Delete Post?"
+  message="Are you sure you want to permanently delete this post? This action cannot be undone."
+  confirmLabel="Delete Post"
+  cancelLabel="Cancel"
+  [isConfirming]="isDeleting()"
+  [errorMessage]="deleteErrorMessage()"
+  (confirmed)="confirmDeletePost()"
+  (cancelled)="closeDeleteDialog()"
+/>

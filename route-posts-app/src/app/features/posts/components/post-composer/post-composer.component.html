@@ -1,0 +1,98 @@
+<div class="card composer-card">
+  <form [formGroup]="composerForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="composer-top">
+      <div class="avatar">
+        @if (currentUser()?.photo) {
+          <img
+            [src]="currentUser()?.photo"
+            [alt]="currentUser()?.name || 'User avatar'"
+            class="avatar-img"
+          />
+        } @else {
+          {{ userInitials() }}
+        }
+      </div>
+
+      <div class="composer-prompt">
+        <textarea
+          rows="3"
+          class="form-control composer-textarea"
+          formControlName="body"
+          (input)="onBodyInput()"
+          [class.is-invalid]="validationError() !== null"
+          placeholder="What's on your mind? Share an update with your community..."
+          aria-label="Create a new post"
+        ></textarea>
+      </div>
+    </div>
+
+    @if (imageSelector.previewUrl(); as previewUrl) {
+      <div class="composer-preview">
+        <img [src]="previewUrl" alt="Selected post attachment preview" class="preview-image" />
+        <button
+          type="button"
+          class="preview-remove-btn"
+          (click)="removeSelectedImage()"
+          [disabled]="isSubmitting()"
+          aria-label="Remove selected image"
+        >
+          &times; Remove Image
+        </button>
+      </div>
+    }
+
+    @if (imageSelector.errorMessage(); as imgError) {
+      <p class="field-error composer-feedback">{{ imgError }}</p>
+    } @else if (validationError(); as err) {
+      <p class="field-error composer-feedback">{{ err }}</p>
+    }
+
+    @if (errorMessages().length > 0) {
+      <div class="alert alert-error composer-feedback" role="alert">
+        @for (msg of errorMessages(); track msg) {
+          <div>{{ msg }}</div>
+        }
+      </div>
+    }
+
+    @if (successMessage(); as success) {
+      <div class="alert alert-success composer-feedback" role="status">
+        {{ success }}
+      </div>
+    }
+
+    <div class="composer-footer">
+      <div class="composer-tools">
+        <label class="file-upload-btn" [class.disabled]="isSubmitting()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span>{{ imageSelector.selectedFile() ? 'Change Photo' : 'Add Photo' }}</span>
+          <input
+            #imageInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            class="sr-only-input"
+            (change)="onFileChange($event)"
+            [disabled]="isSubmitting()"
+          />
+        </label>
+        @if (imageSelector.selectedFile(); as file) {
+          <span class="file-name-pill">{{ file.name }}</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Publishing...</span>
+        } @else {
+          <span>Publish Post</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>
+

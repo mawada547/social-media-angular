@@ -1,0 +1,70 @@
+<section class="post-details-page">
+  <div class="breadcrumb-bar">
+    <a routerLink="/home" class="btn btn-ghost btn-sm">&larr; Back to Home Feed</a>
+    @if (resolvedPostId()) {
+      <span class="badge badge-blue">Post ID: {{ resolvedPostId() }}</span>
+    }
+  </div>
+
+  @if (actionFeedback(); as feedback) {
+    <div class="alert alert-success" role="status">
+      {{ feedback }}
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="card state-card" role="status" aria-live="polite">
+      <div class="loading-row">
+        <span class="spinner spinner-blue" aria-hidden="true"></span>
+        <span>Loading post details...</span>
+      </div>
+    </div>
+  } @else if (errorMessages().length > 0) {
+    <div class="card state-card" role="alert">
+      <h1 class="state-title">Unable to load post</h1>
+      @for (msg of errorMessages(); track msg) {
+        <p class="state-message">{{ msg }}</p>
+      }
+      <div class="state-actions">
+        @if (currentPostId()) {
+          <button type="button" class="btn btn-primary btn-sm" (click)="reloadPost()">
+            Try Again
+          </button>
+        }
+        <a routerLink="/home" class="btn btn-outline btn-sm">Return to Home Feed</a>
+      </div>
+    </div>
+  } @else if (!post()) {
+    <div class="card state-card">
+      <h1 class="state-title">Post not found</h1>
+      <p class="state-message">
+        This post may have been removed or is no longer available.
+      </p>
+      <a routerLink="/home" class="btn btn-primary btn-sm">Back to Home Feed</a>
+    </div>
+  } @else {
+    @if (post(); as selectedPost) {
+      <app-post-card
+        [post]="selectedPost"
+        [showDetailsLink]="false"
+        [isDeleting]="isDeleting()"
+        (postUpdated)="onPostUpdated()"
+        (deleteRequested)="openDeleteDialog()"
+      />
+
+      <app-comment-section [postId]="resolvedPostId()" />
+    }
+  }
+</section>
+
+<app-confirm-dialog
+  [open]="showDeleteDialog()"
+  title="Delete Post?"
+  message="Are you sure you want to permanently delete this post? You will be redirected back to the feed."
+  confirmLabel="Delete Post"
+  cancelLabel="Cancel"
+  [isConfirming]="isDeleting()"
+  [errorMessage]="deleteErrorMessage()"
+  (confirmed)="confirmDeletePost()"
+  (cancelled)="closeDeleteDialog()"
+/>

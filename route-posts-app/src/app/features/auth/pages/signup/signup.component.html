@@ -1,0 +1,216 @@
+<section class="signup-wrapper">
+  <div class="card signup-card">
+    <div class="signup-header">
+      <span class="badge badge-blue">Join SocialHub</span>
+      <h1>Create your account</h1>
+      <p>
+        Build your profile, publish posts, and participate in community discussions.
+      </p>
+    </div>
+
+    <form class="form-stack" [formGroup]="signupForm" (ngSubmit)="onSubmit()" novalidate>
+      @if (errorMessages().length > 0) {
+        <div class="alert alert-error" role="alert">
+          @if (errorMessages().length === 1) {
+            <span>{{ errorMessages()[0] }}</span>
+          } @else {
+            <strong>Please fix the following issues:</strong>
+            <ul class="alert-list">
+              @for (msg of errorMessages(); track msg) {
+                <li>{{ msg }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+
+      @if (successMessage()) {
+        <div class="alert alert-success" role="status">
+          {{ successMessage() }}
+        </div>
+      }
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="signup-name" class="form-label">Full Name</label>
+          <input
+            id="signup-name"
+            type="text"
+            class="form-control"
+            formControlName="name"
+            [class.is-invalid]="isFieldInvalid('name')"
+            placeholder="Ahmed Bahnasy"
+            autocomplete="name"
+          />
+          @if (isFieldInvalid('name')) {
+            @if (signupForm.controls.name.hasError('required')) {
+              <p class="field-error">Full name is required.</p>
+            } @else if (signupForm.controls.name.hasError('minlength')) {
+              <p class="field-error">Full name must be at least 2 characters.</p>
+            }
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="signup-username" class="form-label">Username</label>
+          <input
+            id="signup-username"
+            type="text"
+            class="form-control"
+            formControlName="username"
+            [class.is-invalid]="isFieldInvalid('username')"
+            placeholder="bahnasy_2026"
+            autocomplete="username"
+          />
+          @if (isFieldInvalid('username')) {
+            @if (signupForm.controls.username.hasError('required')) {
+              <p class="field-error">Username is required.</p>
+            } @else if (signupForm.controls.username.hasError('pattern')) {
+              <p class="field-error">
+                Use 3-30 characters with letters, numbers, or underscores only.
+              </p>
+            }
+          } @else {
+            <p class="field-hint">3-30 characters (letters, numbers, underscores).</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="signup-email" class="form-label">Email Address</label>
+        <input
+          id="signup-email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          [class.is-invalid]="isFieldInvalid('email')"
+          placeholder="example@gmail.com"
+          autocomplete="email"
+        />
+        @if (isFieldInvalid('email')) {
+          @if (signupForm.controls.email.hasError('required')) {
+            <p class="field-error">Email address is required.</p>
+          } @else if (signupForm.controls.email.hasError('email')) {
+            <p class="field-error">Please enter a valid email address.</p>
+          }
+        }
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="signup-dob" class="form-label">Date of Birth</label>
+          <input
+            id="signup-dob"
+            type="date"
+            class="form-control"
+            formControlName="dateOfBirth"
+            [class.is-invalid]="isFieldInvalid('dateOfBirth')"
+            autocomplete="bday"
+          />
+          @if (isFieldInvalid('dateOfBirth')) {
+            @if (signupForm.controls.dateOfBirth.hasError('required')) {
+              <p class="field-error">Date of birth is required.</p>
+            } @else if (signupForm.controls.dateOfBirth.hasError('futureDate')) {
+              <p class="field-error">Date of birth must be in the past.</p>
+            } @else if (signupForm.controls.dateOfBirth.hasError('invalidDate')) {
+              <p class="field-error">Please enter a valid date.</p>
+            }
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="signup-gender" class="form-label">Gender</label>
+          <select
+            id="signup-gender"
+            class="form-control"
+            formControlName="gender"
+            [class.is-invalid]="isFieldInvalid('gender')"
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          @if (isFieldInvalid('gender')) {
+            <p class="field-error">Please select a gender.</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="signup-password" class="form-label">Password</label>
+          <div class="password-field">
+            <input
+              id="signup-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              class="form-control"
+              formControlName="password"
+              [class.is-invalid]="isFieldInvalid('password')"
+              placeholder="Create a strong password"
+              autocomplete="new-password"
+            />
+            <app-password-toggle
+              [visible]="showPassword()"
+              label="password"
+              (toggled)="togglePasswordVisibility()"
+            />
+          </div>
+          @if (isFieldInvalid('password')) {
+            @if (signupForm.controls.password.hasError('required')) {
+              <p class="field-error">Password is required.</p>
+            } @else if (signupForm.controls.password.hasError('pattern')) {
+              <p class="field-error">
+                Password must be 8+ chars with uppercase, lowercase, number, and special char (#?!@$%^&*-).
+              </p>
+            }
+          } @else {
+            <p class="field-hint">
+              8+ characters with uppercase, lowercase, number, and special character.
+            </p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="signup-repassword" class="form-label">Confirm Password</label>
+          <div class="password-field">
+            <input
+              id="signup-repassword"
+              [type]="showRePassword() ? 'text' : 'password'"
+              class="form-control"
+              formControlName="rePassword"
+              [class.is-invalid]="isFieldInvalid('rePassword')"
+              placeholder="Repeat your password"
+              autocomplete="new-password"
+            />
+            <app-password-toggle
+              [visible]="showRePassword()"
+              label="confirm password"
+              (toggled)="toggleRePasswordVisibility()"
+            />
+          </div>
+          @if (isFieldInvalid('rePassword')) {
+            @if (signupForm.controls.rePassword.hasError('required')) {
+              <p class="field-error">Please confirm your password.</p>
+            } @else if (hasPasswordMismatch()) {
+              <p class="field-error">Passwords do not match.</p>
+            }
+          }
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Creating Account...</span>
+        } @else {
+          <span>Create Account</span>
+        }
+      </button>
+    </form>
+
+    <div class="signup-footer">
+      <span>Already registered on SocialHub?</span>
+      <a routerLink="/login" class="link-primary">Sign in to your account</a>
+    </div>
+  </div>
+</section>

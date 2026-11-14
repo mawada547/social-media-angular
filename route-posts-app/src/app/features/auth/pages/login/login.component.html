@@ -1,0 +1,110 @@
+<section class="auth-page">
+  <div class="auth-grid">
+    <!-- Left Promotional Panel -->
+    <div class="auth-promo card">
+      <span class="badge badge-blue">Welcome Back</span>
+      <h1 class="promo-title">Reconnect with your SocialHub community.</h1>
+      <p class="promo-subtitle">
+        Share updates, explore discussions, and engage with creators in a clean, distraction-free environment.
+      </p>
+      <ul class="feature-list">
+        <li>
+          <span class="feature-icon" aria-hidden="true">&#10003;</span>
+          <span>Real-time community feed &amp; rich post threads</span>
+        </li>
+        <li>
+          <span class="feature-icon" aria-hidden="true">&#10003;</span>
+          <span>Full Posts &amp; Comments CRUD capabilities</span>
+        </li>
+        <li>
+          <span class="feature-icon" aria-hidden="true">&#10003;</span>
+          <span>Account management &amp; password security</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Right Login Form Card -->
+    <div class="auth-card card">
+      <div class="auth-card-header">
+        <span class="badge badge-blue">Account Sign In</span>
+        <h2>Sign in to SocialHub</h2>
+        <p>Enter your email address or username along with your password.</p>
+      </div>
+
+      <form class="form-stack" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        @if (infoMessage()) {
+          <div class="alert alert-success" role="status">
+            {{ infoMessage() }}
+          </div>
+        }
+
+        @if (errorMessages().length > 0) {
+          <div class="alert alert-error" role="alert">
+            @if (errorMessages().length === 1) {
+              <span>{{ errorMessages()[0] }}</span>
+            } @else {
+              <ul class="alert-list">
+                @for (msg of errorMessages(); track msg) {
+                  <li>{{ msg }}</li>
+                }
+              </ul>
+            }
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="login-identifier" class="form-label">Email or Username</label>
+          <input
+            id="login-identifier"
+            type="text"
+            class="form-control"
+            formControlName="identifier"
+            [class.is-invalid]="isFieldInvalid('identifier')"
+            placeholder="name@example.com or username"
+            autocomplete="username"
+          />
+          @if (isFieldInvalid('identifier')) {
+            <p class="field-error">Email or username is required.</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="login-password" class="form-label">Password</label>
+          <div class="password-field">
+            <input
+              id="login-password"
+              [type]="showPassword() ? 'text' : 'password'"
+              class="form-control"
+              formControlName="password"
+              [class.is-invalid]="isFieldInvalid('password')"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+            <app-password-toggle
+              [visible]="showPassword()"
+              label="password"
+              (toggled)="togglePasswordVisibility()"
+            />
+          </div>
+          @if (isFieldInvalid('password')) {
+            <p class="field-error">Password is required.</p>
+          }
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Signing In...</span>
+          } @else {
+            <span>Sign In</span>
+          }
+        </button>
+      </form>
+
+      <div class="auth-card-footer">
+        <span>Don't have a SocialHub account yet?</span>
+        <a routerLink="/signup" class="link-primary">Create an account</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,154 @@
+<article class="comment-item" [class.is-deleting]="isDeleting()">
+  <div class="avatar avatar-sm">
+    @if (author()?.photo) {
+      <img
+        [src]="author()?.photo"
+        [alt]="author()?.name || 'Comment author avatar'"
+        class="avatar-img"
+      />
+    } @else {
+      {{ authorInitials() }}
+    }
+  </div>
+
+  <div class="comment-bubble">
+    <div class="comment-header">
+      <div class="comment-meta">
+        <span class="comment-author">{{ author()?.name || 'Community Member' }}</span>
+        @if (author()?.username) {
+          <span class="comment-handle">&#64;{{ author()?.username }}</span>
+        }
+        @if (comment().createdAt) {
+          <span class="meta-dot" aria-hidden="true">&bull;</span>
+          <time [attr.datetime]="comment().createdAt" class="comment-time">
+            {{ comment().createdAt | date: 'MMM d, y, h:mm a' }}
+          </time>
+        }
+      </div>
+
+      @if (isOwner()) {
+        <div class="comment-actions">
+          @if (!isEditing()) {
+            <button
+              type="button"
+              class="action-chip"
+              (click)="startEditing()"
+              [disabled]="isDeleting()"
+            >
+              Edit
+            </button>
+          }
+          <button
+            type="button"
+            class="action-chip action-chip-danger"
+            (click)="requestDelete()"
+            [disabled]="isEditing() || isDeleting()"
+          >
+            Delete
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (isEditing()) {
+      <form class="comment-edit-form" [formGroup]="editForm" (ngSubmit)="saveEdit()" novalidate>
+        <div class="form-group">
+          <label [for]="'edit-comment-' + commentId()" class="form-label">Edit Comment</label>
+          <textarea
+            [id]="'edit-comment-' + commentId()"
+            rows="3"
+            class="form-control comment-edit-textarea"
+            formControlName="content"
+            (input)="onEditContentInput()"
+            [class.is-invalid]="editValidationError() !== null"
+            placeholder="Update your comment..."
+          ></textarea>
+        </div>
+
+        @if (editImageSelector.previewUrl(); as replacementUrl) {
+          <div class="comment-image-preview">
+            <img [src]="replacementUrl" alt="Replacement comment image preview" class="comment-image" />
+            <button
+              type="button"
+              class="preview-remove-btn"
+              (click)="clearReplacementImage()"
+              [disabled]="isSavingEdit()"
+            >
+              &times; Remove New Image
+            </button>
+          </div>
+        } @else if (comment().image) {
+          <div class="existing-image-note">
+            Current attachment will remain unless you select a replacement image below.
+          </div>
+        }
+
+        <div class="edit-file-row">
+          <label class="file-upload-btn" [class.disabled]="isSavingEdit()">
+            <span>{{ editImageSelector.selectedFile() ? 'Change Image' : 'Replace Image (Optional)' }}</span>
+            <input
+              #editImageInput
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              class="sr-only-input"
+              (change)="onEditFileChange($event)"
+              [disabled]="isSavingEdit()"
+            />
+          </label>
+          @if (editImageSelector.selectedFile(); as file) {
+            <span class="file-name-text">{{ file.name }}</span>
+          }
+        </div>
+
+        @if (editImageSelector.errorMessage(); as imgErr) {
+          <p class="field-error">{{ imgErr }}</p>
+        } @else if (editValidationError(); as valErr) {
+          <p class="field-error">{{ valErr }}</p>
+        }
+
+        @if (editErrorMessages().length > 0) {
+          <div class="alert alert-error" role="alert">
+            @for (msg of editErrorMessages(); track msg) {
+              <div>{{ msg }}</div>
+            }
+          </div>
+        }
+
+        <div class="comment-edit-actions">
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            (click)="cancelEditing()"
+            [disabled]="isSavingEdit()"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary btn-sm" [disabled]="isSavingEdit()">
+            @if (isSavingEdit()) {
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Saving...</span>
+            } @else {
+              <span>Save Comment</span>
+            }
+          </button>
+        </div>
+      </form>
+    } @else {
+      @if (comment().content) {
+        <p class="comment-text">{{ comment().content }}</p>
+      }
+
+      @if (comment().image) {
+        <div class="comment-media">
+          <img
+            [src]="comment().image"
+            alt="Comment image attachment"
+            class="comment-image"
+            loading="lazy"
+          />
+        </div>
+      }
+    }
+  </div>
+</article>
+

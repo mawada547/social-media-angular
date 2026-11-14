@@ -1,0 +1,41 @@
+@if (open()) {
+<div class="dialog-backdrop" role="presentation" (click)="onBackdropClick()" (keydown.escape)="onCancel()">
+  <div class="dialog-card card" role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title"
+    (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <span class="dialog-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18"></path>
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+        </svg>
+      </span>
+      <div>
+        <h2 id="confirm-dialog-title" class="dialog-title">{{ title() }}</h2>
+        <p class="dialog-message">{{ message() }}</p>
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+    <div class="alert alert-error" role="alert">
+      {{ errorMessage() }}
+    </div>
+    }
+
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-outline btn-sm" [disabled]="isConfirming()" (click)="onCancel()">
+        {{ cancelLabel() }}
+      </button>
+      <button type="button" class="btn btn-danger btn-sm" [disabled]="isConfirming()" (click)="onConfirm()">
+        @if (isConfirming()) {
+        <span class="spinner" aria-hidden="true"></span>
+        <span>Deleting...</span>
+        } @else {
+        <span>{{ confirmLabel() }}</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
+}

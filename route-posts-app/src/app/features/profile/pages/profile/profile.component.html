@@ -1,0 +1,194 @@
+<section class="profile-page">
+  @if (isLoading()) {
+    <div class="card state-card" role="status" aria-live="polite">
+      <div class="loading-row">
+        <span class="spinner spinner-blue" aria-hidden="true"></span>
+        <span>Loading your profile...</span>
+      </div>
+    </div>
+  } @else if (errorMessages().length > 0) {
+    <div class="card state-card" role="alert">
+      <h1 class="state-title">Unable to load profile</h1>
+      @for (msg of errorMessages(); track msg) {
+        <p class="state-message">{{ msg }}</p>
+      }
+      <div class="state-actions">
+        <button type="button" class="btn btn-primary btn-sm" (click)="loadProfile()">
+          Try Again
+        </button>
+        <a routerLink="/home" class="btn btn-outline btn-sm">Back to Home Feed</a>
+      </div>
+    </div>
+  } @else if (!profile()) {
+    <div class="card state-card">
+      <h1 class="state-title">No profile data available</h1>
+      <p class="state-message">
+        The server did not return profile information for the signed-in account.
+      </p>
+      <div class="state-actions">
+        <button type="button" class="btn btn-primary btn-sm" (click)="loadProfile()">
+          Refresh Profile
+        </button>
+        <a routerLink="/home" class="btn btn-outline btn-sm">Explore Feed</a>
+      </div>
+    </div>
+  } @else {
+    @if (profile(); as user) {
+      <!-- Profile Cover & Identity Card -->
+      <div class="card profile-hero-card">
+        <div class="profile-cover">
+          @if (coverUrl(); as cover) {
+            <img [src]="cover" [alt]="user.name + ' cover photo'" class="profile-cover-img" />
+          }
+        </div>
+
+        <div class="profile-identity-row">
+          <div class="profile-identity-left">
+            <div class="avatar avatar-xl profile-avatar">
+              @if (photoUrl(); as photo) {
+                <img [src]="photo" [alt]="user.name + ' profile photo'" class="avatar-img" />
+              } @else {
+                {{ userInitials() }}
+              }
+            </div>
+
+            <div class="profile-info">
+              <div class="profile-title-row">
+                <h1>{{ user.name }}</h1>
+                @if (user.gender) {
+                  <span class="badge badge-blue">{{ user.gender | titlecase }}</span>
+                }
+              </div>
+              <p class="profile-handle">
+                @if (user.username) {
+                  <span>&#64;{{ user.username }}</span>
+                }
+                @if (user.username && user.email) {
+                  <span aria-hidden="true"> &bull; </span>
+                }
+                @if (user.email) {
+                  <span>{{ user.email }}</span>
+                }
+              </p>
+            </div>
+          </div>
+
+          <div class="profile-actions">
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              (click)="loadProfile()"
+              [disabled]="isLoading()"
+            >
+              Refresh
+            </button>
+            <a routerLink="/change-password" class="btn btn-outline btn-sm">
+              Change Password
+            </a>
+            <a routerLink="/home" class="btn btn-primary btn-sm">
+              Explore Feed
+            </a>
+          </div>
+        </div>
+
+        <div class="profile-stats-bar">
+          <div class="stat-box">
+            <span class="stat-value">{{ followersCount() }}</span>
+            <span class="stat-label">Followers</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value">{{ followingCount() }}</span>
+            <span class="stat-label">Following</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-value">{{ bookmarksCount() }}</span>
+            <span class="stat-label">Bookmarks</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Content Grid -->
+      <div class="profile-content-grid">
+        <aside class="card profile-about-card">
+          <h2>Account Overview</h2>
+          <p>
+            Your authenticated profile information retrieved directly from the Route Posts API.
+          </p>
+          <div class="about-list">
+            @if (user.username) {
+              <div class="about-item">
+                <span class="about-label">Username</span>
+                <span class="about-val">&#64;{{ user.username }}</span>
+              </div>
+            }
+            @if (user.createdAt) {
+              <div class="about-item">
+                <span class="about-label">Member Since</span>
+                <span class="about-val">{{ user.createdAt | date: 'MMM d, y' }}</span>
+              </div>
+            }
+            @if (userId(); as id) {
+              <div class="about-item">
+                <span class="about-label">User ID</span>
+                <span class="about-val about-id">{{ id }}</span>
+              </div>
+            }
+            <div class="about-item">
+              <span class="about-label">Security</span>
+              <a routerLink="/change-password" class="link-primary">Change Password</a>
+            </div>
+          </div>
+        </aside>
+
+        <div class="card profile-details-card">
+          <div class="details-header">
+            <h2>Personal Details</h2>
+            <span class="badge badge-neutral">Authenticated Account</span>
+          </div>
+
+          <dl class="details-grid">
+            <div class="detail-field">
+              <dt class="detail-label">Full Name</dt>
+              <dd class="detail-value">{{ user.name }}</dd>
+            </div>
+
+            @if (user.username) {
+              <div class="detail-field">
+                <dt class="detail-label">Username</dt>
+                <dd class="detail-value">&#64;{{ user.username }}</dd>
+              </div>
+            }
+
+            @if (user.email) {
+              <div class="detail-field">
+                <dt class="detail-label">Email Address</dt>
+                <dd class="detail-value">{{ user.email }}</dd>
+              </div>
+            }
+
+            @if (user.dateOfBirth) {
+              <div class="detail-field">
+                <dt class="detail-label">Date of Birth</dt>
+                <dd class="detail-value">{{ user.dateOfBirth | date: 'MMM d, y' }}</dd>
+              </div>
+            }
+
+            @if (user.gender) {
+              <div class="detail-field">
+                <dt class="detail-label">Gender</dt>
+                <dd class="detail-value">{{ user.gender | titlecase }}</dd>
+              </div>
+            }
+
+            @if (user.createdAt) {
+              <div class="detail-field">
+                <dt class="detail-label">Joined At</dt>
+                <dd class="detail-value">{{ user.createdAt | date: 'MMM d, y, h:mm a' }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+      </div>
+    }
+  }
+</section>
